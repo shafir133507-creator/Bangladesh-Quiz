@@ -1,0 +1,264 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>বাংলাদেশকে কতটা চেনেন?</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#f0f8f2;
+  color:#183c2a;
+}
+nav{
+  background:#08783e;
+  color:white;
+  padding:16px;
+  text-align:center;
+  font-size:20px;
+  font-weight:bold;
+}
+.container{
+  max-width:520px;
+  margin:25px auto;
+  padding:16px;
+}
+.card{
+  background:white;
+  border-radius:20px;
+  padding:24px 18px;
+  box-shadow:0 5px 20px #00000012;
+  text-align:center;
+}
+.flag{font-size:60px}
+h1{color:#08783e;font-size:27px}
+p{line-height:1.7}
+button{
+  width:100%;
+  padding:14px;
+  margin-top:12px;
+  border:0;
+  border-radius:12px;
+  background:#08783e;
+  color:white;
+  font-size:17px;
+  cursor:pointer;
+}
+button:disabled{opacity:0.85}
+.option{
+  background:#fff;
+  color:#183c2a;
+  border:2px solid #d8e8dd;
+  text-align:left;
+}
+.option.correct{
+  background:#d7f6e1;
+  border-color:#078443;
+}
+.option.wrong{
+  background:#ffe1e1;
+  border-color:#d33;
+}
+.small{color:#65786b;font-size:14px}
+.hidden{display:none}
+.progress-bg{
+  background:#e2eee5;
+  height:8px;
+  border-radius:20px;
+  overflow:hidden;
+  margin:12px 0;
+}
+#progress{
+  background:#078443;
+  height:100%;
+  width:0;
+}
+#question{
+  text-align:left;
+  font-size:21px;
+  line-height:1.6;
+}
+#feedback{font-weight:bold;min-height:25px}
+#score{font-size:44px;color:#08783e;font-weight:bold}
+footer{text-align:center;color:#65786b;font-size:13px;padding:20px}
+</style>
+</head>
+
+<body>
+
+<nav>🇧🇩 আমার বাংলাদেশ</nav>
+
+<div class="container">
+
+  <section class="card" id="home">
+    <div class="flag">🇧🇩</div>
+    <h1>বাংলাদেশকে কতটা চেনেন?</h1>
+    <p>বাংলাদেশের ইতিহাস, সংস্কৃতি, খাবার ও সাধারণ জ্ঞান নিয়ে কুইজ খেলুন।</p>
+    <p class="small">১০টি প্রশ্ন · প্রতি সঠিক উত্তরে ১ নম্বর</p>
+    <button onclick="startQuiz()">কুইজ শুরু করুন 🚀</button>
+  </section>
+
+  <section class="card hidden" id="quiz">
+    <p id="count">প্রশ্ন ১ / ১০</p>
+    <div class="progress-bg">
+      <div id="progress"></div>
+    </div>
+    <h2 id="question"></h2>
+    <div id="options"></div>
+    <p id="feedback"></p>
+    <button id="next" class="hidden" onclick="nextQuestion()">পরের প্রশ্ন →</button>
+  </section>
+
+  <section class="card hidden" id="result">
+    <div class="flag">🏆</div>
+    <h1>আপনার ফলাফল</h1>
+    <div id="score"></div>
+    <h3 id="message"></h3>
+    <p id="percent"></p>
+    <button onclick="shareResult()">ফলাফল শেয়ার করুন 📲</button>
+    <button onclick="startQuiz()">আবার খেলুন 🔄</button>
+    <button onclick="goHome()" style="background:#64786b">হোমপেজে ফিরুন</button>
+  </section>
+
+</div>
+
+<footer>বাংলাদেশকে জানুন, দেশকে ভালোবাসুন ❤️</footer>
+
+<script>
+const questions = [
+  {q:"বাংলাদেশের রাজধানী কোনটি?",o:["ঢাকা","খুলনা","সিলেট","বরিশাল"],a:0},
+  {q:"বাংলাদেশের জাতীয় ফুল কোনটি?",o:["গোলাপ","শাপলা","জবা","বেলি"],a:1},
+  {q:"বাংলাদেশের জাতীয় ফল কোনটি?",o:["আম","কলা","কাঁঠাল","লিচু"],a:2},
+  {q:"বাংলাদেশের জাতীয় পাখি কোনটি?",o:["দোয়েল","টিয়া","ময়না","কাক"],a:0},
+  {q:"বাংলাদেশের স্বাধীনতা দিবস কবে?",o:["১৬ ডিসেম্বর","২১ ফেব্রুয়ারি","২৬ মার্চ","১৪ এপ্রিল"],a:2},
+  {q:"বাংলাদেশের বিজয় দিবস কবে?",o:["২৬ মার্চ","১৬ ডিসেম্বর","১ মে","২১ ফেব্রুয়ারি"],a:1},
+  {q:"বিশ্বের বৃহত্তম ম্যানগ্রোভ বন কোনটি?",o:["সুন্দরবন","ভাওয়াল বন","আমাজন বন","লাউয়াছড়া"],a:0},
+  {q:"বাংলাদেশের মুদ্রার নাম কী?",o:["রুপি","টাকা","ডলার","রিয়াল"],a:1},
+  {q:"বাংলাদেশের জাতীয় সংগীতের রচয়িতা কে?",o:["কাজী নজরুল ইসলাম","রবীন্দ্রনাথ ঠাকুর","জসীমউদ্দীন","সুকান্ত ভট্টাচার্য"],a:1},
+  {q:"বাংলাদেশের দীর্ঘতম সমুদ্রসৈকত হিসেবে পরিচিত কোনটি?",o:["কুয়াকাটা","পতেঙ্গা","কক্সবাজার","পারকি"],a:2}
+];
+
+let index=0;
+let score=0;
+let answered=false;
+
+function show(id){
+  ["home","quiz","result"].forEach(x=>{
+    document.getElementById(x).classList.add("hidden");
+  });
+  document.getElementById(id).classList.remove("hidden");
+}
+
+function startQuiz(){
+  index=0;
+  score=0;
+  show("quiz");
+  renderQuestion();
+  window.scrollTo(0,0);
+}
+
+function renderQuestion(){
+  answered=false;
+  const item=questions[index];
+
+  document.getElementById("count").textContent=
+    `প্রশ্ন ${index+1} / ${questions.length}`;
+  document.getElementById("progress").style.width=
+    `${index/questions.length*100}%`;
+  document.getElementById("question").textContent=item.q;
+  document.getElementById("feedback").textContent="";
+  document.getElementById("next").classList.add("hidden");
+
+  const area=document.getElementById("options");
+  area.innerHTML="";
+
+  item.o.forEach((text,i)=>{
+    const btn=document.createElement("button");
+    btn.className="option";
+    btn.textContent=["ক","খ","গ","ঘ"][i]+". "+text;
+    btn.onclick=()=>chooseAnswer(i,btn);
+    area.appendChild(btn);
+  });
+}
+
+function chooseAnswer(selected,button){
+  if(answered)return;
+  answered=true;
+
+  const correct=questions[index].a;
+  const buttons=document.querySelectorAll(".option");
+
+  buttons.forEach((b,i)=>{
+    b.disabled=true;
+    if(i===correct)b.classList.add("correct");
+  });
+
+  if(selected===correct){
+    score++;
+    document.getElementById("feedback").textContent="✅ সঠিক উত্তর!";
+  }else{
+    button.classList.add("wrong");
+    document.getElementById("feedback").textContent=
+      "সঠিক উত্তর: "+questions[index].o[correct];
+  }
+
+  document.getElementById("next").textContent=
+    index===questions.length-1?"ফলাফল দেখুন 🏆":"পরের প্রশ্ন →";
+  document.getElementById("next").classList.remove("hidden");
+}
+
+function nextQuestion(){
+  index++;
+  if(index<questions.length){
+    renderQuestion();
+  }else{
+    showResult();
+  }
+}
+
+function showResult(){
+  show("result");
+  const pct=Math.round(score/questions.length*100);
+  document.getElementById("progress").style.width="100%";
+  document.getElementById("score").textContent=
+    score+" / "+questions.length;
+  document.getElementById("percent").textContent=
+    "আপনার সঠিক উত্তরের হার: "+pct+"%";
+
+  let msg="চেষ্টা চালিয়ে যান, আরও শিখুন! 📚";
+  if(score===10)msg="অসাধারণ! সব প্রশ্নের সঠিক উত্তর! 🏆";
+  else if(score>=7)msg="চমৎকার! বাংলাদেশ সম্পর্কে আপনার ভালো জ্ঞান আছে!";
+  else if(score>=4)msg="ভালো চেষ্টা! আবার খেলুন!";
+
+  document.getElementById("message").textContent=msg;
+  window.scrollTo(0,0);
+}
+
+function shareResult(){
+  const pct=Math.round(score/questions.length*100);
+  const text=`🇧🇩 বাংলাদেশকে কতটা চেনেন?\nআমার স্কোর ${score}/${questions.length} (${pct}%)। আপনিও কুইজ খেলুন!`;
+
+  if(navigator.share){
+    navigator.share({title:"আমার বাংলাদেশ কুইজ",text:text})
+      .catch(()=>{});
+  }else if(navigator.clipboard){
+    navigator.clipboard.writeText(text)
+      .then(()=>alert("ফলাফল কপি হয়েছে। Facebook-এ পেস্ট করুন।"))
+      .catch(()=>prompt("ফলাফল কপি করুন:",text));
+  }else{
+    prompt("ফলাফল কপি করুন:",text);
+  }
+}
+
+function goHome(){
+  show("home");
+  window.scrollTo(0,0);
+}
+</script>
+
+</body>
+</html>
